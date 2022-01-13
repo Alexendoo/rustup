@@ -622,6 +622,11 @@ pub(crate) fn cli() -> App<'static, 'static> {
                         .help(TOOLCHAIN_ARG_HELP)
                         .long("toolchain")
                         .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("no-newline")
+                        .help("Do not print the trailing newline")
+                        .long("no-newline")
                 ),
         )
         .subcommand(
@@ -1053,9 +1058,15 @@ fn which(cfg: &Cfg, m: &ArgMatches<'_>) -> Result<utils::ExitCode> {
         cfg.which_binary(&utils::current_dir()?, binary)?
     };
 
+    let newline = if m.is_present("no-newline") {
+        ""
+    } else {
+        "\n"
+    };
+
     utils::assert_is_file(&binary_path)?;
 
-    writeln!(process().stdout(), "{}", binary_path.display())?;
+    write!(process().stdout(), "{}{}", binary_path.display(), newline)?;
     Ok(utils::ExitCode(0))
 }
 

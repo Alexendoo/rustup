@@ -831,13 +831,13 @@ fn which() {
         expect_stdout_ok(
             config,
             &["rustup", "which", "rustc"],
-            "\\toolchains\\custom-1\\bin\\rustc",
+            "\\toolchains\\custom-1\\bin\\rustc.exe\n",
         );
         #[cfg(not(windows))]
         expect_stdout_ok(
             config,
             &["rustup", "which", "rustc"],
-            "/toolchains/custom-1/bin/rustc",
+            "/toolchains/custom-1/bin/rustc\n",
         );
         let path_2 = config.customdir.join("custom-2");
         let path_2 = path_2.to_string_lossy();
@@ -857,6 +857,12 @@ fn which() {
             &["rustup", "which", "--toolchain=custom-2", "rustc"],
             "/toolchains/custom-2/bin/rustc",
         );
+        let out = run(config, "rustup", ["which", "--no-newline", "rustc"], &[]);
+        assert!(out.ok);
+        #[cfg(windows)]
+        assert!(out.stdout.ends_with("\\toolchains\\custom-1\\bin\\rustc.exe"));
+        #[cfg(not(windows))]
+        assert!(out.stdout.ends_with("/toolchains/custom-1/bin/rustc"));
     });
 }
 
